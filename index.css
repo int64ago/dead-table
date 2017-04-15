@@ -1,0 +1,19 @@
+#app {
+  margin: 10px;
+}
+
+.m-table th,td {
+  text-align: center;
+}
+
+.m-table td {
+  width: 200px;
+}
+
+.u-fontsize {
+  display: inline-block;
+}
+.u-numberinput {
+  display: inline-block;
+  width: 60px;
+}
