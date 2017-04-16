@@ -4,6 +4,7 @@
 
 .m-table th,td {
   text-align: center;
+  position: relative;
 }
 
 .m-table td {
@@ -16,4 +17,19 @@
 .u-numberinput {
   display: inline-block;
   width: 60px;
+}
+
+.u-edit {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+.u-edit.red {
+  background-color: rgba(255, 95, 95, 0.6);
+}
+.u-edit.green {
+  background-color: rgba(112, 243, 153, 0.6)
 }
