@@ -10,8 +10,8 @@ const tpl = `
     <thead>
         <tr>
         {#list _headers as header}
-        {#if header.children}
-        <th colspan={header.children.length} style="width: {fontSize * header.width}px">{header.name}</th>
+        {#if header._children || header.children}
+        <th colspan={(header._children || header.children).length} style="width: {fontSize * header.width}px">{header.name}</th>
         {#else}
         <th rowspan="2" style="width: {fontSize * header.width}px">
         {header.name}
@@ -24,7 +24,7 @@ const tpl = `
         </tr>
         <tr>
         {#list _headers as header}
-        {#list header.children || [] as _header}
+        {#list header._children || header.children || [] as _header}
         <th style="width: {fontSize * _header.width}px">
         {_header.name}
         {#if editing}
@@ -108,11 +108,17 @@ const App = NEKUI.Component.extend({
   template: tpl,
   config() {
     this.defaults({
-      deleted: [4, 5],
+      deleted: JSON.parse(localStorage.getItem('dead-table.deleted') || '[]'),
       editing: false,
-      fontSize: 14,
+      fontSize: localStorage.getItem('dead-table.fontSize')/1 || 14,
       headers,
       list,
+    });
+    this.$watch('fontSize', function(value) {
+      localStorage.setItem('dead-table.fontSize', value || 0);
+    });
+    this.$watch('deleted.length', function() {
+      localStorage.setItem('dead-table.deleted', JSON.stringify(this.data.deleted));
     });
   },
 
@@ -120,12 +126,12 @@ const App = NEKUI.Component.extend({
     _headers: function(data) {
       if (!data.editing) {
         let headers = data.headers.filter(d => !~data.deleted.indexOf(d.index));
-        // for (let x of headers) {
-        //   if (x.children) {
-        //     x.children = x.children.filter(d => !~data.deleted.indexOf(d.index));
-        //   }
-        // }
-        // headers = headers.filter(d => !d.children || d.children.length);
+        for (let x of headers) {
+          if (x.children) {
+            x._children = x.children.filter(d => !~data.deleted.indexOf(d.index));
+          }
+        }
+        headers = headers.filter(d => !d._children || d._children.length);
         return headers;
       }
       return data.headers;
@@ -146,6 +152,9 @@ const App = NEKUI.Component.extend({
   },
   doEdit() {
     this.data.editing = true;
+    for (let x of headers) {
+      delete x._children
+    }
   },
   toggle(item) {
     let idx = this.data.deleted.indexOf(item.index);
